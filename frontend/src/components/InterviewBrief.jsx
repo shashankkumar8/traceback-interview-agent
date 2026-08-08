@@ -148,7 +148,7 @@ export default function InterviewBrief({ candidate, onStart, onBack, loading }) 
           {/* TRACEBACK note */}
           <div className="brief-note">
             <span className="brief-note-icon">⚡</span>
-            TRACEBACK will adaptively probe candidate answers in real-time, tracing back claims to verify genuine understanding.
+            TRACEBACK will adaptively probe candidate answers in real-time, tracing back claims to verify genuine understanding. Surface-level responses trigger deeper questions.
           </div>
         </div>
 

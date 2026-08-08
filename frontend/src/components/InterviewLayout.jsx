@@ -104,6 +104,7 @@ export default function InterviewLayout({
             <span className="il-stage-label">{loading ? loadingStep || stageLabel : stageLabel}</span>
             {demoMode && <span className="demo-badge-sm">DEMO</span>}
           </div>
+          <div className="il-profile-note">Don't just answer. Explain your reasoning and the tradeoffs behind your choice.</div>
 
           {/* Progress bar */}
           <div className="il-progress-block">

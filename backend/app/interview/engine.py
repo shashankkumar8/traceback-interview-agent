@@ -38,6 +38,7 @@ class InterviewEngine:
 
         name = state.candidate.member.name.split()[0]
         role = state.candidate.member.jobRole
+        article = 'an' if role and role[0].lower() in 'aeiou' else 'a'
 
         state.interview_stage = InterviewStage.QUESTIONING
         topic = state.topic_queue.pop(0) if state.topic_queue else "RAG End-to-End & LLM API Basics"
@@ -51,7 +52,7 @@ class InterviewEngine:
 
         reply = (
             f"Welcome, {name}. I'm TRACEBACK — I'll explore your understanding of the AI engineering "
-            f"curriculum, tailored to your background as a {role}.\n\n{question}"
+            f"curriculum, tailored to your background as {article} {role}.\n\n{question}"
         )
         return InterviewResponse(reply=reply, done=False, progress=self._progress(state))
 
@@ -69,6 +70,7 @@ class InterviewEngine:
         # Tag evidence with the topic being tested at the time of this answer.
         evidence_topic = state.current_topic
         evidence.topic = evidence_topic
+        evidence.probe_level = min(state.follow_up_count, 2)
         state.evidence.append(evidence)
 
         # Analyze answer using LLM
@@ -101,7 +103,7 @@ class InterviewEngine:
     def _decide_action(
         self, state: InterviewState, analysis: dict
     ) -> NextAction:
-        if state.question_count >= state.max_questions - 1:
+        if state.question_count >= state.max_questions:
             return NextAction.FINALIZE
 
         follow_up_needed = analysis.get("follow_up_needed", True)
@@ -148,6 +150,8 @@ class InterviewEngine:
                     state.mark_coverage(dim)
 
                 question = await generate_next_question_llm(state, action, profile, self.provider)
+                if question.strip() in state.question_history:
+                    raise ValueError("Duplicate question generated")
                 state.interview_stage = InterviewStage.QUESTIONING if action == NextAction.CHANGE_TOPIC else InterviewStage.FOLLOW_UP
                 return question
             except Exception as e:

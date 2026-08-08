@@ -202,15 +202,18 @@ textarea { font-family: var(--font); }
   user-select: none;
 }
 
-.cyan-highlight {
-  color: var(--accent);
-  text-shadow: 0 0 14px rgba(0,229,255,0.4);
+.brand-note {
+  margin-top: 6px;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  max-width: 520px;
+  line-height: 1.5;
 }
 
 .brand-tagline {
+  margin-top: 2px;
   font-size: 0.8rem;
   color: var(--text-muted);
-  margin-top: 2px;
 }
 
 .topbar-right {

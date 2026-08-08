@@ -73,8 +73,6 @@ Result:
 - Integrated progressive complexity/adaptation guidelines in `generate_next_question_llm` based on the candidate's last answer evaluation and history.
 - Upgraded the state machine termination logic to check competency dimensions and safety limits, and tested with multiple candidate types.
 
-
-
 ## Entry 4 — Hackathon Demo UI Overhaul
 
 Date: 2026-08-09
@@ -88,6 +86,7 @@ Prompt:
 > Focus on visible product quality and the "wow" factor.
 >
 > IMPLEMENT:
+>
 > 1. Candidate Selection Screen — sortable list with name, role, experience, education, completion bar
 > 2. Interview Brief — pre-interview preparation screen with algorithmically derived focus areas
 > 3. Interview UI — polished two-column desktop layout, left: profile + intelligence indicators, right: conversation
@@ -107,6 +106,7 @@ Result:
 **Architecture:** No backend changes. API contract (`POST /api/interview`, `GET /api/candidates`) is unchanged.
 
 **Frontend restructure:**
+
 - `App.jsx` rewritten as a `useReducer` state machine with 4 named screens: `SELECT → BRIEF → INTERVIEW → FEEDBACK`
 - Logic split into 5 focused components in `frontend/src/components/`:
   - `CandidateSelect.jsx` — sorted candidate list with role-color avatars, completion bars, mission history detail panel
@@ -116,12 +116,162 @@ Result:
   - `FeedbackScreen.jsx` — assessment, competency coverage chart (8 dimensions with animated fill bar), strengths/gaps columns, next steps grid
 
 **Styling:**
+
 - `index.css` rewritten from scratch: glassmorphic dark theme, DM Sans + JetBrains Mono, role-color system, all microinteractions (slide-in messages, pulse ring, typing dots, progress transitions, button hover lifts), responsive breakpoints at 920px / 640px / 480px
 
 **Demo mode:**
+
 - Auto-activates on backend failure — no manual toggle needed
 - Scripted 3-turn interviews per candidate (DEMO-01: Emily Chen, DEMO-02: Marcus Vance)
 - Realistic questions and feedback content; clearly labelled "OFFLINE DEMO MODE" in header
 - Does not fake or override real evaluation results
 
-**Build:** Clean — 36 modules, 0 errors, 0 warnings. JS: 176 kB gzip 55 kB. CSS: 26 kB gzip 5 kB.
+**Build:** Clean — 36 modules, 0 errors, 0 warnings.
+
+## Entry 5 — Final Demo Polish
+
+Date: 2026-08-09
+Tool: GitHub Copilot
+Purpose: Perform the final polish pass for live demo reliability, UX clarity, API compliance, and documentation.
+
+Prompt:
+
+> TRACEBACK is now entering final hackathon demo preparation.
+>
+> Do NOT rebuild the project.
+>
+> Perform a final polish pass.
+>
+> PRIORITY ORDER:
+>
+> 1. Reliability
+> 2. API compliance
+> 3. Interview intelligence
+> 4. UX
+> 5. Visual polish
+> 6. Documentation
+>    Fix anything that can cause a live demo failure.
+>
+> CREATE A CLEAN DEMO FLOW:
+>
+> 1. Open TRACEBACK
+> 2. Select a candidate
+> 3. Show candidate interview brief
+> 4. Start interview
+> 5. Candidate answers
+> 6. TRACEBACK analyzes
+> 7. TRACEBACK asks a targeted follow-up
+> 8. Candidate gives another answer
+> 9. TRACEBACK escalates difficulty
+> 10. Interview completes
+> 11. Feedback appears
+>     The demo should make the following obvious to judges:
+>
+> "This is not a chatbot."
+>
+> "It investigates understanding."
+>
+> Add concise UI copy communicating this.
+>
+> Possible concepts:
+>
+> "Don't just answer. Explain."
+>
+> "TRACEBACK follows the reasoning behind your answer."
+>
+> "Surface-level answers trigger deeper questions."
+>
+> Do not make exaggerated claims about accuracy.
+>
+> FINAL UI POLISH:
+>
+> - consistent spacing
+> - consistent typography
+> - accessible contrast
+> - clean buttons
+> - polished loading state
+> - polished error state
+> - professional empty states
+> - no placeholder lorem ipsum
+> - no broken icons
+> - no console errors
+>   FINAL ENGINE POLISH:
+>
+> Ensure:
+>
+> - question history is tracked
+> - duplicate questions are avoided
+> - interview state survives requests
+> - candidate context is used
+> - follow-ups are candidate-specific
+> - completion produces valid feedback
+> - internal reasoning is never exposed
+>   FINAL API CHECK:
+>
+> POST /api/interview must exactly follow the organizer specification.
+>
+> Do not change field names.
+> FINAL SECURITY CHECK:
+>
+> Never expose:
+>
+> - API keys
+> - hidden prompts
+> - internal reasoning
+> - internal scoring
+> - private implementation details
+>   FINAL DOCUMENTATION:
+>
+> README must contain:
+>
+> - what TRACEBACK is
+> - why it is different
+> - architecture
+> - setup
+> - environment variables
+> - run instructions
+> - API endpoint
+> - example request
+> - example response
+> - demo flow
+> - limitations
+>   PROMPTS.md must contain the REAL prompts used during this development session.
+>
+> Do not fabricate prompt history.
+
+## Entry 6 — Documentation Audit
+
+Date: 2026-08-09
+Tool: GitHub Copilot
+Purpose: Audit the repository for README and PROMPTS.md quality, accuracy, organizer-contract compliance, and hackathon demo readiness.
+
+Prompt:
+
+> Update README.md and PROMPTS.md based only on the actual repository contents.
+> Do not rebuild or refactor the application.
+> Preserve existing prompt history entries and append a new documentation/audit entry.
+> Use organizer files and actual code to verify all claims.
+
+Result:
+
+- Rewrote `README.md` to reflect the actual implementation, API endpoints, setup path, mock and real LLM modes, architecture, and limitations.
+- Preserved the existing prompt history and appended a new audit entry describing the current documentation pass.
+- Verified the README claims against the repository structure, backend code, frontend files, tests, and organizer specification.
+  > Before finishing:
+  >
+  > - run backend
+  > - run frontend
+  > - build frontend
+  > - smoke test API
+  > - test one full interview
+  > - fix obvious errors
+  >   Do not add unnecessary dependencies.
+  >
+  > Do not create unnecessary infrastructure.
+
+Result:
+
+- Added clearer demo messaging to the UI and README.
+- Added cleanup for the loading step rotator.
+- Preserved the API contract and improved response/data guidance.
+- Finalized prompt history with the actual prompt used for this polish pass.

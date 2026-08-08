@@ -17,6 +17,12 @@ async def interview_endpoint(body: InterviewRequest) -> InterviewResponse:
     session_id = body.sessionId
 
     if body.candidate is not None:
+        if body.message is not None:
+            raise HTTPException(
+                status_code=422,
+                detail="Request must include either candidate or message, not both",
+            )
+
         try:
             candidate = Candidate.from_dict(body.candidate)
         except ValidationError as exc:

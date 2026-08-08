@@ -413,6 +413,10 @@ export default function App() {
   // ── Render ────────────────────────────────────────────────────────────────
   const { screen, demoMode, loading, loadingStep, error } = state
 
+  useEffect(() => {
+    return () => rotator.stop()
+  }, [rotator])
+
   return (
     <div className="app-shell">
       {/* Top bar */}
@@ -420,6 +424,7 @@ export default function App() {
         <div>
           <div className="brand-logo">TRACE<span className="cyan-highlight">BACK</span></div>
           <div className="brand-tagline">The interviewer that doesn't just hear your answer. It investigates your understanding.</div>
+          <div className="brand-note">This is not a chatbot — it investigates reasoning and claims, not just keywords.</div>
         </div>
         <div className="topbar-right">
           {demoMode && <span className="demo-badge">OFFLINE DEMO MODE</span>}
