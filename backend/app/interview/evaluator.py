@@ -27,7 +27,7 @@ def generate_feedback_rules(state: InterviewState) -> Feedback:
     weak_topics: dict[str, int] = {}
 
     for ev in state.evidence:
-        topic = state.current_topic or "general"
+        topic = ev.topic or state.current_topic or "general"
         score = _depth_score(ev.depth)
         if score >= 3:
             strong_topics[topic] = strong_topics.get(topic, 0) + 1
@@ -99,7 +99,11 @@ async def generate_feedback(state: InterviewState, provider: LLMProvider | None 
 
     history_str = ""
     for q, a, ev in zip(state.question_history, state.answer_history, state.evidence):
-        history_str += f"Q: {q}\nA: {a}\nEvidence extracted (technologies: {ev.technologies}, metrics: {ev.metrics}, depth: {ev.depth.value})\n\n"
+        history_str += (
+            f"Q: {q}\n"
+            f"--- BEGIN CANDIDATE ANSWER ---\n{a}\n--- END CANDIDATE ANSWER ---\n"
+            f"Evidence extracted (technologies: {ev.technologies}, metrics: {ev.metrics}, depth: {ev.depth.value})\n\n"
+        )
 
     system_prompt = (
         "You are a senior technical interviewer. Evaluate the candidate's performance across the entire interview session. "

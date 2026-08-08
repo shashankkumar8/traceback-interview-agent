@@ -119,7 +119,12 @@ async def extract_evidence(answer: str, question: str = "", provider: LLMProvide
         "}\n"
         "Only return the raw JSON object, no markdown blocks, no other text."
     )
-    user_prompt = f"Question: {question}\nCandidate Answer: {answer}"
+    # Wrap candidate content in explicit delimiters so injected instructions
+    # cannot escape into the system role or override evaluation logic.
+    user_prompt = (
+        f"Question: {question}\n"
+        f"--- BEGIN CANDIDATE ANSWER ---\n{answer}\n--- END CANDIDATE ANSWER ---"
+    )
 
     try:
         response_text = await provider.generate([
@@ -189,7 +194,12 @@ async def analyze_answer(answer: str, question: str, provider: LLMProvider | Non
         "}\n"
         "Only return the raw JSON object, no markdown blocks, no other text."
     )
-    user_prompt = f"Question: {question}\nCandidate Answer: {answer}"
+    # Wrap candidate content in explicit delimiters so injected instructions
+    # cannot escape into the system role or override evaluation logic.
+    user_prompt = (
+        f"Question: {question}\n"
+        f"--- BEGIN CANDIDATE ANSWER ---\n{answer}\n--- END CANDIDATE ANSWER ---"
+    )
 
     try:
         response_text = await provider.generate([

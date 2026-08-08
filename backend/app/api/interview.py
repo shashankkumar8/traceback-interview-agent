@@ -49,7 +49,8 @@ async def interview_endpoint(body: InterviewRequest) -> InterviewResponse:
             return InterviewResponse(
                 reply="Interview completed.",
                 done=True,
-                feedback=await generate_feedback(state),
+                feedback=await generate_feedback(state, engine.provider),
+                progress=engine._progress(state),
             )
 
         try:

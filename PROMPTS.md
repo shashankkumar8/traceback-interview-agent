@@ -74,3 +74,54 @@ Result:
 - Upgraded the state machine termination logic to check competency dimensions and safety limits, and tested with multiple candidate types.
 
 
+
+## Entry 4 — Hackathon Demo UI Overhaul
+
+Date: 2026-08-09
+Tool: Kiro Agent
+Purpose: Improve TRACEBACK specifically for a live hackathon judging demo — polished product quality, "wow" factor, demo reliability. No architecture changes.
+
+Prompt:
+
+> Now improve TRACEBACK specifically for a live hackathon judging demo.
+> Do not replace working architecture.
+> Focus on visible product quality and the "wow" factor.
+>
+> IMPLEMENT:
+> 1. Candidate Selection Screen — sortable list with name, role, experience, education, completion bar
+> 2. Interview Brief — pre-interview preparation screen with algorithmically derived focus areas
+> 3. Interview UI — polished two-column desktop layout, left: profile + intelligence indicators, right: conversation
+> 4. TRACEBACK Visualization — Answer → Analysis → Traceback → Follow-Up pipeline with live step highlighting
+> 5. Interview States — Preparing / Listening / Analyzing / Tracing / Follow-up / Complete
+> 6. Feedback Screen — assessment, strengths, knowledge gaps, next steps, competency coverage chart
+> 7. Microinteractions — message animations, typing indicator, progress transitions, button feedback
+> 8. Error UX — friendly error, preserve conversation, allow retry, never blank screen
+> 9. Responsive behavior — laptop + tablet/mobile usable
+> 10. Demo Reliability — mock mode ONLY if needed, clearly labelled, real API must remain functional
+>
+> Update README and PROMPTS.md. Run the application and inspect for errors.
+> Do not modify the API contract.
+
+Result:
+
+**Architecture:** No backend changes. API contract (`POST /api/interview`, `GET /api/candidates`) is unchanged.
+
+**Frontend restructure:**
+- `App.jsx` rewritten as a `useReducer` state machine with 4 named screens: `SELECT → BRIEF → INTERVIEW → FEEDBACK`
+- Logic split into 5 focused components in `frontend/src/components/`:
+  - `CandidateSelect.jsx` — sorted candidate list with role-color avatars, completion bars, mission history detail panel
+  - `InterviewBrief.jsx` — interviewer preparation screen with algorithmically tagged focus areas (CORE/GAP/VERIFY/PROBE)
+  - `TracebackVisualizer.jsx` — live pipeline step indicator: Answer → Analysis → Traceback → Follow-Up with pulse ring animation and rotating status bar
+  - `InterviewLayout.jsx` — two-column layout: left sidebar (profile + visualizer + dimension grid), right chat panel with typing indicator, error inline with Retry, Ctrl+Enter submit
+  - `FeedbackScreen.jsx` — assessment, competency coverage chart (8 dimensions with animated fill bar), strengths/gaps columns, next steps grid
+
+**Styling:**
+- `index.css` rewritten from scratch: glassmorphic dark theme, DM Sans + JetBrains Mono, role-color system, all microinteractions (slide-in messages, pulse ring, typing dots, progress transitions, button hover lifts), responsive breakpoints at 920px / 640px / 480px
+
+**Demo mode:**
+- Auto-activates on backend failure — no manual toggle needed
+- Scripted 3-turn interviews per candidate (DEMO-01: Emily Chen, DEMO-02: Marcus Vance)
+- Realistic questions and feedback content; clearly labelled "OFFLINE DEMO MODE" in header
+- Does not fake or override real evaluation results
+
+**Build:** Clean — 36 modules, 0 errors, 0 warnings. JS: 176 kB gzip 55 kB. CSS: 26 kB gzip 5 kB.

@@ -5,7 +5,6 @@ from app.interview.evaluator import generate_feedback
 from app.interview.evidence import extract_evidence
 from app.interview.question_strategy import (
     build_topic_queue,
-    find_claim_probe,
     pick_opening_question,
     generate_next_question_llm,
 )
@@ -67,6 +66,9 @@ class InterviewEngine:
 
         state.answer_history.append(message)
         evidence = await extract_evidence(message, state.current_question, self.provider)
+        # Tag evidence with the topic being tested at the time of this answer.
+        evidence_topic = state.current_topic
+        evidence.topic = evidence_topic
         state.evidence.append(evidence)
 
         # Analyze answer using LLM

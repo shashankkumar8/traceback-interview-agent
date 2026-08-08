@@ -17,7 +17,6 @@ def test_strong_answer():
     assert depth in (AnswerDepth.STRONG, AnswerDepth.EXPERT, AnswerDepth.WORKING)
 
 
-@pytest.mark.anyio
 async def test_extract_technologies():
     ev = await extract_evidence("We used Pinecone for vector search and FastAPI for the API.")
     assert "pinecone" in [t.lower() for t in ev.technologies] or any("vector" in t for t in ev.technologies)

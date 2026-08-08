@@ -32,7 +32,39 @@ async def health():
 
 @app.get("/api/candidates")
 async def list_candidates():
-    return {"candidates": load_candidates()}
+    raw = load_candidates()
+    # Return only display-safe fields. Internal status, full signal counts, and
+    # mission attempt details that could reveal scoring are retained for the
+    # interview engine (which reads from the file directly), but the API only
+    # exposes what the UI needs for candidate selection.
+    safe = []
+    for c in raw:
+        member = c.get("member", {})
+        safe.append({
+            "member": {
+                "id": member.get("id", ""),
+                "name": member.get("name", ""),
+                "jobRole": member.get("jobRole", ""),
+                "yearsExperience": member.get("yearsExperience", 0),
+                "education": member.get("education", ""),
+            },
+            "missions": [
+                {
+                    "day": m.get("day"),
+                    "title": m.get("title", ""),
+                    "passed": m.get("passed"),
+                    "skipped": m.get("skipped"),
+                    "attempts": m.get("attempts", 1),
+                }
+                for m in c.get("missions", [])
+            ],
+            "signals": {
+                "commitDays": c.get("signals", {}).get("commitDays", 0),
+                "missionsCompleted": c.get("signals", {}).get("missionsCompleted", 0),
+                "missionsFirstTry": c.get("signals", {}).get("missionsFirstTry", 0),
+            },
+        })
+    return {"candidates": safe}
 
 
 @app.get("/api/curriculum")

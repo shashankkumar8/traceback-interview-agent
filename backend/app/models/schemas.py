@@ -95,6 +95,7 @@ class EvidenceItem(BaseModel):
     ownership: str = ""
     depth: AnswerDepth = AnswerDepth.UNKNOWN
     probe_level: int = 0
+    topic: str = ""  # topic being tested when this evidence was collected
 
 
 class InterviewRequest(BaseModel):

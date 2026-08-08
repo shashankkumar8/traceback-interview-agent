@@ -234,7 +234,7 @@ async def generate_next_question_llm(
 
     history_str = ""
     for q, a in zip(state.question_history, state.answer_history):
-        history_str += f"Interviewer: {q}\nCandidate: {a}\n\n"
+        history_str += f"Interviewer: {q}\n--- BEGIN CANDIDATE ANSWER ---\n{a}\n--- END CANDIDATE ANSWER ---\n\n"
     if len(state.question_history) > len(state.answer_history):
         history_str += f"Interviewer: {state.question_history[-1]}\n"
 
