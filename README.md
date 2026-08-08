@@ -2,7 +2,7 @@
 
 **The interviewer that doesn't just hear your answer. It investigates your understanding.**
 
-ABTalks Vibe Code Hackathon — Problem Statement 2: The Interview Agent
+**ABTalks Vibe Code Hackathon — Problem Statement 2: The Interview Agent**
 
 ---
 
@@ -12,10 +12,10 @@ TRACEBACK is a prototype AI interview agent built to evaluate whether a candidat
 
 This implementation uses a React frontend and a FastAPI backend to:
 
-- start or continue interview sessions
-- analyze candidate answers for evidence and answer depth
-- issue follow-up probes on surface-level responses
-- return a final evaluation summary with strengths, gaps, and next steps
+- Start or continue interview sessions
+- Analyze candidate answers for evidence and answer depth
+- Issue follow-up probes on surface-level responses
+- Return a final evaluation summary with strengths, gaps, and next steps
 
 ---
 
@@ -23,89 +23,135 @@ This implementation uses a React frontend and a FastAPI backend to:
 
 The repository currently supports:
 
-- candidate-aware interviewing using organizer-provided candidate profiles
-- curriculum-aware question sequencing based on mission history and module data
-- answer evidence extraction with rule-based analysis and optional LLM support
-- follow-up probing for shallow responses
-- interview session progression tracking and completion logic
-- in-memory session storage for prototype state
-- mock LLM mode for reliable development/demo behavior
-- optional OpenAI-compatible LLM provider support via environment configuration
+- Candidate-aware interviewing using organizer-provided candidate profiles
+- Curriculum-aware question sequencing based on mission history and module data
+- Answer evidence extraction with rule-based analysis and optional LLM support
+- Follow-up probing for shallow responses
+- Interview session progression tracking and completion logic
+- In-memory session storage for prototype state
+- Mock LLM mode for reliable development and demo behavior
+- Optional OpenAI-compatible LLM provider support through environment configuration
 
 ---
 
 ## Architecture
 
+```text
 Candidate
-↓
-Frontend React App
-↓
-Backend FastAPI API
-↓
+   |
+   v
+React Frontend
+   |
+   v
+FastAPI Backend
+   |
+   v
 Interview Engine
-├── Question Strategy
-├── Evidence Extraction
-├── Evaluator
-├── Candidate Profile
-├── Curriculum Loader
-└── LLM Provider
-↓
+   |-- Question Strategy
+   |-- Evidence Extraction
+   |-- Evaluator
+   |-- Candidate Profile
+   |-- Curriculum Loader
+   `-- LLM Provider
+   |
+   v
 Interview Response
+```
 
-### Core modules
+### Core Modules
 
-- `backend/app/main.py` — FastAPI app entrypoint and frontend/static mounting
-- `backend/app/api/interview.py` — interview route validation and request handling
-- `backend/app/interview/engine.py` — interview state machine and turn-by-turn logic
-- `backend/app/interview/question_strategy.py` — question selection and follow-up guidance
-- `backend/app/interview/evidence.py` — answer analysis and evidence classification
-- `backend/app/interview/evaluator.py` — final feedback generation
-- `backend/app/llm/provider.py` — mock and OpenAI-compatible provider abstraction
-- `backend/app/services/candidate_profile.py` — candidate context extraction
-- `backend/app/services/curriculum.py` — organizer curriculum and candidate data loading
-- `backend/app/storage/session_store.py` — in-memory session persistence
-- `frontend/src/App.jsx` — root UI state machine and backend integration
-- `frontend/src/components/` — candidate selection, interview brief, layout, visualizer, feedback
+| Module                                       | Responsibility                                                            |
+| -------------------------------------------- | ------------------------------------------------------------------------- |
+| `backend/app/main.py`                        | FastAPI application entrypoint and frontend/static mounting               |
+| `backend/app/api/interview.py`               | Interview route validation and request handling                           |
+| `backend/app/interview/engine.py`            | Interview state machine and turn-by-turn logic                            |
+| `backend/app/interview/question_strategy.py` | Question selection and follow-up guidance                                 |
+| `backend/app/interview/evidence.py`          | Answer analysis and evidence classification                               |
+| `backend/app/interview/evaluator.py`         | Final feedback generation                                                 |
+| `backend/app/llm/provider.py`                | Mock and OpenAI-compatible provider abstraction                           |
+| `backend/app/services/candidate_profile.py`  | Candidate context extraction                                              |
+| `backend/app/services/curriculum.py`         | Organizer curriculum and candidate data loading                           |
+| `backend/app/storage/session_store.py`       | In-memory session persistence                                             |
+| `frontend/src/App.jsx`                       | Root UI state machine and backend integration                             |
+| `frontend/src/components/`                   | Candidate selection, interview brief, layout, visualizer, and feedback UI |
 
 ---
 
 ## Repository Layout
 
+```text
 TRACEBACK/
-├── backend/
-│ ├── app/
-│ │ ├── api/
-│ │ ├── interview/
-│ │ ├── llm/
-│ │ ├── models/
-│ │ ├── services/
-│ │ └── storage/
-│ ├── requirements.txt
-│ └── pytest.ini
-├── frontend/
-│ ├── package.json
-│ ├── vite.config.js
-│ └── src/
-├── organizer/
-│ ├── technical-spec.md
-│ ├── curriculum (1).json
-│ └── candidates.json
-├── README.md
-├── PROMPTS.md
-├── .env.example
-└── .gitignore
+|
+|-- backend/
+|   |-- app/
+|   |   |-- api/
+|   |   |   `-- interview.py
+|   |   |
+|   |   |-- interview/
+|   |   |   |-- engine.py
+|   |   |   |-- evaluator.py
+|   |   |   |-- evidence.py
+|   |   |   `-- question_strategy.py
+|   |   |
+|   |   |-- llm/
+|   |   |   `-- provider.py
+|   |   |
+|   |   |-- models/
+|   |   |   `-- schemas.py
+|   |   |
+|   |   |-- services/
+|   |   |   |-- candidate_profile.py
+|   |   |   `-- curriculum.py
+|   |   |
+|   |   |-- storage/
+|   |   |   `-- session_store.py
+|   |   |
+|   |   |-- config.py
+|   |   `-- main.py
+|   |
+|   |-- tests/
+|   |   |-- test_evidence.py
+|   |   `-- test_interview_api.py
+|   |
+|   |-- pytest.ini
+|   `-- requirements.txt
+|
+|-- frontend/
+|   |-- src/
+|   |   |-- components/
+|   |   |-- App.jsx
+|   |   |-- index.css
+|   |   `-- main.jsx
+|   |
+|   |-- index.html
+|   |-- package.json
+|   |-- package-lock.json
+|   `-- vite.config.js
+|
+|-- organizer/
+|   |-- technical-spec.md
+|   |-- curriculum (1).json
+|   `-- candidates.json
+|
+|-- .env.example
+|-- .gitignore
+|-- PROMPTS.md
+`-- README.md
+```
+
+> The `organizer/` directory contains organizer-provided resources used to implement the hackathon requirements.
 
 ---
 
 ## Organizer Contract
 
-The organizer files define the expected behavior for this project:
+The organizer-provided files define the expected behavior for this project:
 
 - `organizer/technical-spec.md` — API contract and interview requirements
-- `organizer/curriculum (1).json` — curriculum topics and day mapping
-- `organizer/candidates.json` — candidate profiles and mission history
+- `organizer/curriculum (1).json` — Curriculum topics and day mapping
+- `organizer/candidates.json` — Candidate profiles and mission history
 
-The current implementation is aligned with the organizer contract for interview session start, continuation, and completion.
+The implementation is designed around the organizer contract for interview session start, continuation, candidate context, and completion.
 
 ---
 
@@ -113,9 +159,9 @@ The current implementation is aligned with the organizer contract for interview 
 
 ### `POST /api/interview`
 
-Start or continue an interview session.
+Starts or continues an interview session.
 
-Start request body:
+### Start Request
 
 ```json
 {
@@ -129,13 +175,13 @@ Start request body:
       "education": "MS Computer Science",
       "status": "COMPLETED"
     },
-    "missions": [ ... ],
-    "signals": { ... }
+    "missions": [],
+    "signals": {}
   }
 }
 ```
 
-Continue request body:
+### Continue Request
 
 ```json
 {
@@ -144,7 +190,7 @@ Continue request body:
 }
 ```
 
-Typical response:
+### Typical Response
 
 ```json
 {
@@ -155,14 +201,20 @@ Typical response:
     "totalQuestions": 10,
     "stage": "FOLLOW_UP",
     "areasExplored": [
-      { "name": "Fundamentals", "explored": true },
-      { "name": "Implementation", "explored": true }
+      {
+        "name": "Fundamentals",
+        "explored": true
+      },
+      {
+        "name": "Implementation",
+        "explored": true
+      }
     ]
   }
 }
 ```
 
-Completion response:
+### Completion Response
 
 ```json
 {
@@ -174,9 +226,15 @@ Completion response:
     "gaps": ["..."],
     "next": ["..."]
   },
-  "progress": { "stage": "COMPLETED" }
+  "progress": {
+    "stage": "COMPLETED"
+  }
 }
 ```
+
+---
+
+## Additional API Endpoints
 
 ### `GET /api/candidates`
 
@@ -184,11 +242,11 @@ Returns candidate profiles used by the frontend.
 
 ### `GET /api/curriculum`
 
-Returns curriculum data from the organizer files.
+Returns curriculum data loaded from the organizer files.
 
 ### `GET /health`
 
-Health check endpoint.
+Returns the backend health status.
 
 ---
 
@@ -198,20 +256,58 @@ Health check endpoint.
 
 - Python 3.11+
 - Node.js 18+
+- npm
 
 ### Backend
 
 ```bash
 cd backend
 python -m venv .venv
-.venv\Scripts\activate      # Windows
-# source .venv/bin/activate    # macOS/Linux
+```
+
+#### Windows
+
+```bash
+.venv\Scripts\activate
+```
+
+#### macOS / Linux
+
+```bash
+source .venv/bin/activate
+```
+
+Install dependencies:
+
+```bash
 pip install -r requirements.txt
+```
+
+Create the environment file.
+
+#### Windows
+
+```bash
 copy ..\.env.example ..\.env
+```
+
+#### macOS / Linux
+
+```bash
+cp ../.env.example ../.env
+```
+
+Start the backend:
+
+```bash
 uvicorn app.main:app --reload --port 8000
 ```
 
-### Frontend
+---
+
+## Frontend Setup
+
+Open another terminal:
 
 ```bash
 cd frontend
@@ -219,95 +315,205 @@ npm install
 npm run dev
 ```
 
-### Production Build
+---
+
+## Production Build
+
+Build the frontend:
 
 ```bash
 cd frontend
 npm install
 npm run build
+```
+
+Then start the backend:
+
+```bash
 cd ../backend
 uvicorn app.main:app --port 8000
 ```
 
-Open `http://localhost:8000` after building the frontend.
+Open:
+
+```text
+http://localhost:8000
+```
 
 ---
 
 ## Environment Variables
 
-| Variable             | Default       | Description                             |
-| -------------------- | ------------- | --------------------------------------- |
-| `LLM_PROVIDER`       | `mock`        | `mock`, `openai`, `groq`, `ollama`      |
-| `LLM_MODEL`          | `gpt-4o-mini` | Model name for the provider             |
-| `LLM_API_KEY`        | —             | API key for OpenAI-compatible providers |
-| `LLM_BASE_URL`       | —             | Custom OpenAI-compatible base URL       |
-| `MOCK_LLM`           | `true`        | Force mock mode regardless of API key   |
-| `TARGET_QUESTIONS`   | `10`          | Interview question limit                |
-| `MAX_MESSAGE_LENGTH` | `4000`        | Maximum answer length in characters     |
+| Variable             | Default       | Description                                          |
+| -------------------- | ------------- | ---------------------------------------------------- |
+| `LLM_PROVIDER`       | `mock`        | LLM provider: `mock`, `openai`, `groq`, or `ollama`  |
+| `LLM_MODEL`          | `gpt-4o-mini` | Model name used by the selected provider             |
+| `LLM_API_KEY`        | —             | API key for the selected provider                    |
+| `LLM_BASE_URL`       | —             | Optional OpenAI-compatible API base URL              |
+| `MOCK_LLM`           | `true`        | Forces mock mode regardless of API key configuration |
+| `TARGET_QUESTIONS`   | `10`          | Maximum interview question count                     |
+| `MAX_MESSAGE_LENGTH` | `4000`        | Maximum candidate answer length                      |
 
 ---
 
-## Mock Mode
+## Mock LLM Mode
 
-Mock mode is enabled by default and is used when:
+Mock mode is enabled by default.
+
+It is used when:
 
 - `MOCK_LLM=true`
 - `LLM_PROVIDER=mock`
-- no `LLM_API_KEY` is configured
+- No `LLM_API_KEY` is configured
 
-In mock mode, the backend uses `MockLLMProvider` and returns simple template-based follow-ups and feedback.
+In mock mode, the backend uses `MockLLMProvider` and produces deterministic template-based follow-up questions and feedback.
+
+This makes TRACEBACK suitable for development and hackathon demonstrations without requiring a paid LLM API.
 
 ---
 
 ## Real LLM Mode
 
-Real LLM mode is available when a valid OpenAI-compatible provider is configured.
+TRACEBACK supports an OpenAI-compatible provider abstraction.
 
-Required variables:
+Configure:
 
-- `LLM_PROVIDER` set to `openai`, `groq`, or `ollama`
-- `LLM_API_KEY`
-- optional `LLM_BASE_URL`
+```text
+LLM_PROVIDER=openai
+LLM_MODEL=<model-name>
+LLM_API_KEY=<your-api-key>
+```
 
-`backend/app/llm/provider.py` handles the provider selection and request format.
+For compatible providers or custom endpoints, `LLM_BASE_URL` can also be configured.
+
+API keys should be stored in environment variables and must never be committed to Git.
 
 ---
 
 ## Testing
 
-Run backend tests:
+Run the backend test suite:
 
 ```bash
 cd backend
 pytest -v
 ```
 
-The test suite covers interview flow, session handling, response shape, and evidence/depth classification behavior.
+The current tests cover areas including:
+
+- Interview flow
+- Session handling
+- API response structure
+- Evidence extraction
+- Answer-depth classification
 
 ---
 
-## Demo Guidance
+## Demo Flow
 
-For a hackathon judge demo:
+For a hackathon judge demonstration:
 
-1. Open the app and select a candidate.
-2. Generate the interview brief.
-3. Begin the assessment.
-4. Answer a technical question clearly.
-5. Show the TRACEBACK pipeline and follow-up question.
-6. Answer again with more detail.
-7. Complete the interview and show the feedback screen.
+1. Open TRACEBACK.
+2. Select a candidate.
+3. Review the interview brief.
+4. Begin the assessment.
+5. Answer an initial technical question.
+6. Show how TRACEBACK analyzes the answer.
+7. Demonstrate the follow-up probe.
+8. Provide a deeper answer.
+9. Continue until the interview completes.
+10. Show the final evaluation containing strengths, gaps, and recommended next steps.
 
-If the backend is unavailable, the frontend falls back to a clearly labelled offline demo mode.
+### Investigation Loop
+
+```text
+Candidate Answer
+       |
+       v
+Evidence Detection
+       |
+       v
+Depth Assessment
+       |
+       v
+Does the answer demonstrate understanding?
+       |
+       +---- NO ----> Follow-up Probe
+       |                    |
+       |                    v
+       |             Candidate Explains More
+       |                    |
+       +--------------------+
+       |
+       v
+Continue Assessment
+```
+
+---
+
+## Design Principle
+
+TRACEBACK is intentionally different from a keyword-based interview chatbot.
+
+The core interaction model is:
+
+**Answer → Investigate → Verify Understanding → Continue**
+
+Instead of simply asking another unrelated question, TRACEBACK uses the candidate's previous answer to determine:
+
+- What evidence is present
+- What evidence is missing
+- Whether the explanation demonstrates understanding
+- What targeted follow-up should be asked next
+
+This investigation loop is the central product concept demonstrated by the prototype.
 
 ---
 
 ## Limitations
 
-- Session state is stored in memory and resets when the backend restarts.
-- Mock mode is intended for development/demo reliability and not production-grade evaluation.
-- Real LLM quality depends on provider configuration and API availability.
-- There is no authentication or persistent database in the current implementation.
+This is a hackathon prototype rather than a production deployment.
+
+Current limitations include:
+
+- Session state is stored in memory.
+- Sessions reset when the backend restarts.
+- Mock mode is designed for deterministic development/demo behavior.
+- Real LLM quality depends on provider configuration and model behavior.
+- There is currently no authentication.
+- There is currently no persistent database.
+- Production-scale observability and infrastructure are outside the scope of this prototype.
+
+---
+
+## Hackathon Authenticity
+
+TRACEBACK was developed incrementally during the ABTalks Vibe Code Hackathon.
+
+The repository contains:
+
+- Organizer-provided resources
+- Application source code
+- Tests
+- Development prompts
+- Configuration examples
+- Documentation
+
+`PROMPTS.md` records the AI-assisted development prompts and important implementation interactions used during development.
+
+The project is intended to remain transparent and reproducible rather than presenting fabricated development history.
+
+---
+
+## Project Status
+
+**Status:** Hackathon Prototype
+
+**Problem Statement:** Problem Statement 2 — The Interview Agent
+
+**Project:** TRACEBACK
+
+**Focus:** Evidence-driven technical interviewing and adaptive follow-up questioning.
 
 ---
 
