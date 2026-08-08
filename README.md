@@ -250,6 +250,23 @@ Returns the backend health status.
 
 ---
 
+## Opening the Project
+
+From the repository root, you can open the project in Visual Studio Code if it is installed:
+
+```bash
+code .
+```
+
+Then use the editor terminal to run the backend and frontend.
+
+If you want to open the app directly after setup, use one of these URLs:
+
+- Backend-served production preview: `http://localhost:8000`
+- Frontend dev server: `http://localhost:5173`
+
+---
+
 ## Local Setup
 
 ### Prerequisites
