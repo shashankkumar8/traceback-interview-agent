@@ -18,8 +18,7 @@ import InterviewLayout from './components/InterviewLayout'
 import FeedbackScreen  from './components/FeedbackScreen'
 import './index.css'
 
-const API_BASE = import.meta.env.VITE_API_URL || ''
-const API = `${API_BASE}/api`
+const API = (import.meta.env.VITE_API_URL || '/api').replace(/\/$/, '')
 
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
