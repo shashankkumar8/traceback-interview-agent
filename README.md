@@ -1,91 +1,98 @@
 # TRACEBACK
 
-**The interviewer that doesn't just hear your answer. It investigates your understanding.**
+**TRACEBACK is an evidence-driven AI interview agent prototype.**
+
+This repository pairs a FastAPI backend with a React + Vite frontend to simulate technical interview sessions that probe candidate reasoning, extract evidence from answers, and generate structured feedback.
 
 ## What TRACEBACK Does
 
-TRACEBACK is a polished hackathon-ready AI technical interview platform built for recruiters and interviewers who want evidence-driven candidate assessment.
+- Starts and continues interview sessions using a `sessionId`
+- Loads candidate profiles and curriculum data from `organizer/`
+- Generates adaptive questions based on answer quality and topic coverage
+- Extracts evidence using rule-based heuristics with optional LLM analysis
+- Decides whether to ask follow-ups, deeper probes, claim validation, or next-topic questions
+- Produces end-of-interview feedback with strengths, gaps, and next steps
+- Supports an offline demo mode when backend connectivity fails
 
-It is designed to:
+## Why This Project Is Different
 
-- guide interviewer-led candidate selection and interview briefing
-- adapt to candidate answers with follow-up, cross-check, and deeper questions
-- analyze technical claims for evidence, metrics, tradeoffs, and ownership
-- generate a final evaluation summary with strengths, gaps, and next steps
-- clearly label offline demo/mock mode and preserve stable behavior
+TRACEBACK is designed as an interviewer, not a chatbot. It focuses on:
 
----
+- examining candidate claims rather than conversational chit-chat
+- probing surface-level responses with evidence-based follow-up questions
+- adapting question difficulty and topic coverage based on performance
 
-## Why It’s Different
+## Repository Layout
 
-TRACEBACK is not a generic chatbot.
-It is an investigative technical interviewer that:
-
-- probes superficial claims
-- checks whether the candidate owns the implementation
-- focuses on production readiness and failure modes
-- avoids unrelated or repetitive follow-up
-- uses evidence first, then asks deeper questions
-
----
+- `backend/` — FastAPI backend, interview engine, session store, and LLM provider abstraction
+- `frontend/` — React + Vite UI for candidate selection, interview flow, and feedback
+- `organizer/` — candidate metadata, curriculum payload, and technical spec source material
+- `.env.example` — runtime configuration template
+- `README.md` — documentation for setup, architecture, and API usage
 
 ## Architecture
 
-```text
-Frontend (React/Vite)
-  ├── Candidate select
-  ├── Interview brief
-  ├── Adaptive interview workspace
-  └── Final feedback report
-
-Backend (FastAPI/Pydantic)
-  ├── /api/candidates
-  ├── /api/interview
-  ├── InterviewEngine
-  │     ├── question strategy
-  │     ├── evidence extraction
-  │     ├── answer analysis
-  │     ├── follow-up decisions
-  │     └── feedback generation
-  └── LLM provider abstraction
+```mermaid
+flowchart TD
+    USER[Candidate] --> UI[React Frontend]
+    UI --> API[FastAPI API]
+    API --> ENGINE[Interview Engine]
+    ENGINE --> PROFILE[Candidate Profile Service]
+    ENGINE --> CURRICULUM[Curriculum Service]
+    ENGINE --> STRATEGY[Question Strategy]
+    ENGINE --> EVIDENCE[Evidence Extraction]
+    ENGINE --> EVALUATOR[Answer Evaluation]
+    ENGINE --> SESSION[Session Store]
+    ENGINE --> LLM[LLM Provider]
+    LLM --> OPENAI[OpenAI-Compatible Provider]
+    LLM --> MOCK[Mock / Fallback Provider]
+    EVIDENCE --> ENGINE
+    EVALUATOR --> ENGINE
+    STRATEGY --> ENGINE
+    ENGINE --> FEEDBACK[Feedback Generator]
+    FEEDBACK --> API
+    API --> UI
 ```
 
-### Core Modules
+### Backend
 
-| Module                                       | Responsibility                                                       |
-| -------------------------------------------- | -------------------------------------------------------------------- |
-| `backend/app/main.py`                        | App entrypoint, CORS, candidate and curriculum routes                |
-| `backend/app/api/interview.py`               | Interview route validation and request handling                      |
-| `backend/app/interview/engine.py`            | Interview flow state machine, topic progression, follow-up decisions |
-| `backend/app/interview/question_strategy.py` | Question sequencing, claim probes, topic selection                   |
-| `backend/app/interview/evidence.py`          | Evidence extraction, depth classification, answer quality            |
-| `backend/app/interview/evaluator.py`         | Final evaluation summary and feedback generation                     |
-| `backend/app/llm/provider.py`                | Mock and OpenAI-compatible provider abstraction                      |
-| `backend/app/services/candidate_profile.py`  | Candidate context and curriculum signal analysis                     |
-| `backend/app/services/curriculum.py`         | Organizer curriculum loading and topic metadata                      |
-| `backend/app/storage/session_store.py`       | In-memory session persistence                                        |
-| `frontend/src/App.jsx`                       | Root UI state management and backend integration                     |
-| `frontend/src/components/`                   | Candidate selection, briefing, interview workspace, feedback screens |
+The backend is centered on a lightweight interview engine:
 
----
+- `backend/app/main.py` — FastAPI app, CORS middleware, health check, candidate/curriculum endpoints, optional frontend static mount
+- `backend/app/api/interview.py` — interview endpoint for session start and message continuation
+- `backend/app/interview/engine.py` — interview lifecycle, state transitions, action decisions, and completion logic
+- `backend/app/interview/question_strategy.py` — question bank, topic queue, claim probes, and optional LLM question generation
+- `backend/app/interview/evidence.py` — answer evidence extraction, depth classification, and answer analysis
+- `backend/app/interview/evaluator.py` — summary feedback generation
+- `backend/app/llm/provider.py` — mock provider and OpenAI-compatible provider abstraction
+- `backend/app/services/candidate_profile.py` — candidate context analysis for strengths, weak areas, and skipped concepts
+- `backend/app/services/curriculum.py` — loads curriculum and candidate JSON files
+- `backend/app/storage/session_store.py` — thread-safe in-memory state persistence
 
-## Features
+### Frontend
 
-- Candidate-aware interview sessions
-- Adaptive follow-up questioning
-- Evidence-driven answer analysis
-- Cross-check and deeper question flow
-- Final feedback with strengths, gaps, and next steps
-- Offline mock/demo mode clearly labeled
-- Optional OpenAI-compatible LLM provider support
+The frontend provides:
 
----
+- candidate selection and profile overview
+- interview brief screen before starting the session
+- chat-style interview flow with adaptive progress indicators
+- final feedback screen with competency coverage, strengths, gaps, and next steps
+- offline demo fallback when the backend is unreachable
 
-## API Summary
+## Interview Flow
+
+1. Frontend loads candidate metadata from `GET /api/candidates`
+2. User selects a candidate and sends `sessionId` + `candidate` to `POST /api/interview`
+3. Backend initializes the interview state and returns the first question
+4. Candidate answers are sent as `sessionId` + `message` to `POST /api/interview`
+5. Backend extracts evidence, analyzes answer quality, and decides the next action
+6. Endpoint returns a question or completes the interview with structured feedback
+
+## API Reference
 
 ### `POST /api/interview`
 
-Starts or continues an interview session.
+Start or continue an interview session.
 
 #### Start request
 
@@ -116,7 +123,13 @@ Starts or continues an interview session.
 }
 ```
 
-#### Typical response
+Rules:
+
+- Start requests must include `candidate` and must not include `message`
+- Continue requests must include `message`
+- `sessionId` is required and identifies the interview session
+
+#### Example response
 
 ```json
 {
@@ -154,35 +167,70 @@ Starts or continues an interview session.
 
 ### `GET /api/candidates`
 
-Returns candidate profiles used by the frontend.
+Returns candidate metadata for selection. The backend intentionally strips internal fields such as `member.status` from the payload.
 
 ### `GET /api/curriculum`
 
-Returns the curriculum data loaded from the organizer files.
+Returns the curriculum JSON payload loaded from `organizer/`.
 
 ### `GET /health`
 
-Returns backend health.
+Returns a basic health check.
 
----
+## Environment Configuration
 
-## Setup
+The backend reads `.env` via `pydantic-settings`.
+
+| Variable             | Default                                       | Description                                          |
+| -------------------- | --------------------------------------------- | ---------------------------------------------------- |
+| `LLM_PROVIDER`       | `mock`                                        | Supported values: `mock`, `openai`, `groq`, `ollama` |
+| `LLM_MODEL`          | `gpt-4o-mini`                                 | Model name for OpenAI-compatible provider            |
+| `LLM_API_KEY`        | (empty)                                       | API key for real LLM access                          |
+| `LLM_BASE_URL`       | (empty)                                       | Optional OpenAI-compatible API base URL              |
+| `MOCK_LLM`           | `true`                                        | Force mock mode regardless of provider settings      |
+| `TARGET_QUESTIONS`   | `10`                                          | Maximum interview turns before completion            |
+| `MAX_MESSAGE_LENGTH` | `4000`                                        | Maximum allowed candidate answer length              |
+| `HOST`               | `0.0.0.0`                                     | Backend listening host                               |
+| `PORT`               | `8000`                                        | Backend listening port                               |
+| `CORS_ORIGINS`       | `http://localhost:5173,http://localhost:3000` | Allowed frontend origins                             |
+
+## Running Locally
 
 ### Backend
 
 ```bash
 cd backend
 python -m venv .venv
-.venv\\Scripts\\activate  # Windows
-# or source .venv/bin/activate  # macOS / Linux
+```
+
+Windows:
+
+```powershell
+.venv\Scripts\activate
+```
+
+macOS / Linux:
+
+```bash
+source .venv/bin/activate
+```
+
+Install dependencies:
+
+```bash
 pip install -r requirements.txt
 ```
 
-Create the environment file:
+Create `.env` from the example:
+
+```powershell
+copy ..\.env.example ..\.env
+```
+
+or
 
 ```bash
-copy ..\\.env.example ..\\.env  # Windows
-cp ../.env.example ../.env      # macOS / Linux
+cp ../.env.example ../.env
 ```
 
 Start the backend:
@@ -199,49 +247,11 @@ npm install
 npm run dev
 ```
 
-Open `http://localhost:5173` for the dev UI.
-
----
-
-## Production Build
-
-```bash
-cd frontend
-npm install
-npm run build
-cd ../backend
-uvicorn app.main:app --port 8000
-```
-
----
-
-## Environment Variables
-
-| Variable             | Default       | Description                                         |
-| -------------------- | ------------- | --------------------------------------------------- |
-| `LLM_PROVIDER`       | `mock`        | LLM provider: `mock`, `openai`, `groq`, or `ollama` |
-| `LLM_MODEL`          | `gpt-4o-mini` | Model name used by the selected provider            |
-| `LLM_API_KEY`        | —             | API key for the selected provider                   |
-| `LLM_BASE_URL`       | —             | Optional OpenAI-compatible API base URL             |
-| `MOCK_LLM`           | `true`        | Force mock mode regardless of API key config        |
-| `TARGET_QUESTIONS`   | `10`          | Maximum interview question count                    |
-| `MAX_MESSAGE_LENGTH` | `4000`        | Maximum candidate answer length                     |
-
----
-
-## Mock / Demo Mode
-
-Mock mode is the default behavior when a realtime LLM provider is not configured.
-
-It is clearly labelled in the UI as `OFFLINE DEMO MODE`.
-
-This makes the app stable for demonstrations without requiring a paid LLM API.
-
----
+Open `http://localhost:5173`.
 
 ## Real LLM Mode
 
-Configure a real provider:
+To enable real LLM-powered analysis, set:
 
 ```text
 LLM_PROVIDER=openai
@@ -249,9 +259,13 @@ LLM_MODEL=<model-name>
 LLM_API_KEY=<your-api-key>
 ```
 
-If you have a custom OpenAI-compatible endpoint, set `LLM_BASE_URL`.
+Optionally set `LLM_BASE_URL` for a custom OpenAI-compatible endpoint.
 
----
+## Mock / Demo Mode
+
+- `MOCK_LLM=true` forces the backend to use the built-in mock provider.
+- The frontend also falls back to a clearly labeled offline demo mode if the backend is unreachable.
+- Offline demo mode uses scripted questions and feedback; it does not claim real scoring.
 
 ## Testing
 
@@ -260,27 +274,21 @@ cd backend
 pytest -v
 ```
 
----
-
 ## Demo Flow
 
-1. Open TRACEBACK.
+1. Open TRACEBACK in the browser.
 2. Select a candidate.
 3. Review the interview brief.
 4. Start the interview.
-5. Answer a technical question.
-6. See evidence analysis and follow-up probing.
-7. Answer more deeply.
-8. Continue until completion.
-9. Review strengths, gaps, and next steps.
-
----
+5. Answer the technical question.
+6. TRACEBACK analyzes the response and probes claims.
+7. Continue until completion.
+8. Review strengths, gaps, and next steps.
 
 ## Limitations
 
-- Session state is stored in memory.
-- Sessions reset when the backend restarts.
-- Mock/demo mode is deterministic for demo reliability.
-- There is no authentication.
-- There is no persistent database.
-- Production-grade monitoring and infrastructure are out of scope.
+- Session state is stored in memory and is lost on backend restart
+- There is no authentication or authorization layer
+- There is no persistent database
+- Mock/demo mode is intended for development and demos, not production
+- Frontend error handling is basic and designed for prototype use
