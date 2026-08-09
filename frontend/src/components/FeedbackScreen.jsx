@@ -47,7 +47,7 @@ export default function FeedbackScreen({ feedback, candidate, progress, onRestar
           <h1 className="fb-title">Assessment: {m.name}</h1>
           <p className="fb-role">{m.jobRole} · {m.yearsExperience} years experience</p>
         </div>
-        <button className="btn-secondary fb-restart-btn" onClick={onRestart}>
+        <button className="btn-secondary fb-restart-btn" type="button" onClick={onRestart}>
           NEW INTERVIEW
         </button>
       </div>

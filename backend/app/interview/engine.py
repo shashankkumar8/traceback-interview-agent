@@ -7,9 +7,11 @@ from app.interview.question_strategy import (
     build_topic_queue,
     pick_opening_question,
     generate_next_question_llm,
+    find_claim_probe,
 )
 from app.models.schemas import (
     AnswerDepth,
+    EvidenceItem,
     InterviewResponse,
     InterviewStage,
     InterviewState,
@@ -41,8 +43,10 @@ class InterviewEngine:
         article = 'an' if role and role[0].lower() in 'aeiou' else 'a'
 
         state.interview_stage = InterviewStage.QUESTIONING
-        topic = state.topic_queue.pop(0) if state.topic_queue else "RAG End-to-End & LLM API Basics"
+        topic = self._choose_next_topic(state)
         state.current_topic = topic
+        state.asked_topics.append(topic)
+        state.topic_history.append(topic)
         question, dim = pick_opening_question(profile, topic)
         state.current_question = question
         state.question_history.append(question)
@@ -55,6 +59,13 @@ class InterviewEngine:
             f"curriculum, tailored to your background as {article} {role}.\n\n{question}"
         )
         return InterviewResponse(reply=reply, done=False, progress=self._progress(state))
+
+    def _choose_next_topic(self, state: InterviewState) -> str:
+        while state.topic_queue:
+            next_topic = state.topic_queue.pop(0)
+            if next_topic not in state.asked_topics:
+                return next_topic
+        return "Chatbot Evaluation & Testing"
 
     async def process_message(self, state: InterviewState, message: str) -> InterviewResponse:
         if state.interview_stage == InterviewStage.COMPLETED:
@@ -79,7 +90,7 @@ class InterviewEngine:
         state.analyses.append(analysis)
 
         depth = evidence.depth
-        action = self._decide_action(state, analysis)
+        action = self._decide_action(state, analysis, evidence)
         state.last_action = action
 
         if depth in (AnswerDepth.STRONG, AnswerDepth.EXPERT):
@@ -101,7 +112,7 @@ class InterviewEngine:
         return InterviewResponse(reply=question, done=False, progress=self._progress(state))
 
     def _decide_action(
-        self, state: InterviewState, analysis: dict
+        self, state: InterviewState, analysis: dict, evidence: EvidenceItem
     ) -> NextAction:
         if state.question_count >= state.max_questions:
             return NextAction.FINALIZE
@@ -116,9 +127,17 @@ class InterviewEngine:
             return NextAction.FOLLOW_UP
 
         state.follow_up_count = 0
+
+        if quality == "strong" and evidence.technologies:
+            state.interview_stage = InterviewStage.CROSS_CHECK
+            return NextAction.CROSS_CHECK
+
+        if quality == "strong" and evidence.depth in (AnswerDepth.STRONG, AnswerDepth.EXPERT):
+            state.interview_stage = InterviewStage.DEEP_DIVE
+            return NextAction.DEEPER
+
         state.interview_stage = InterviewStage.QUESTIONING
 
-        # Conclude if we have evaluated at least 4 dimensions and have asked >= 6 questions
         explored = len(state.explored_dimensions())
         if explored >= 4 and state.question_count >= 6:
             return NextAction.FINALIZE
@@ -140,11 +159,10 @@ class InterviewEngine:
             try:
                 # Update current topic if changing topic
                 if action == NextAction.CHANGE_TOPIC:
-                    if state.topic_queue:
-                        topic = state.topic_queue.pop(0)
-                    else:
-                        topic = "Chatbot Evaluation & Testing"
+                    topic = self._choose_next_topic(state)
                     state.current_topic = topic
+                    state.asked_topics.append(topic)
+                    state.topic_history.append(topic)
                     state.competencies_tested.append(topic)
                     _, dim = pick_opening_question(profile, topic)
                     state.mark_coverage(dim)
@@ -163,6 +181,9 @@ class InterviewEngine:
 
         if action == NextAction.FOLLOW_UP:
             if quality == "weak":
+                probe = find_claim_probe(message, state.follow_up_count)
+                if probe:
+                    return probe
                 return f"Let's step back. Can you explain the basic definition or fundamental workflow of {state.current_topic}?"
             return (
                 f"Can you go deeper on {state.current_topic}? "
@@ -176,17 +197,16 @@ class InterviewEngine:
             )
 
         if action == NextAction.CROSS_CHECK:
+            const_tech = ', '.join(evidence.technologies[:2]) or 'that approach'
             return (
-                f"Earlier you mentioned {', '.join(evidence.technologies[:2]) or 'that approach'}. "
+                f"Earlier you mentioned {const_tech}. "
                 f"How would you validate it was working correctly in production?"
             )
 
-        if state.topic_queue:
-            topic = state.topic_queue.pop(0)
-        else:
-            topic = "Chatbot Evaluation & Testing"
-
+        topic = self._choose_next_topic(state)
         state.current_topic = topic
+        state.asked_topics.append(topic)
+        state.topic_history.append(topic)
         state.competencies_tested.append(topic)
         question, dim = pick_opening_question(profile, topic)
         state.mark_coverage(dim)

@@ -72,8 +72,8 @@ def generate_feedback_rules(state: InterviewState) -> Feedback:
         f"Tailor depth to {role} expectations — connect tools to business outcomes.",
     ]
 
-    depth_counts = {_depth_score(e.depth) for e in state.evidence}
-    avg = sum(depth_counts) / len(depth_counts) if depth_counts else 1
+    depth_scores = [_depth_score(e.depth) for e in state.evidence]
+    avg = sum(depth_scores) / len(depth_scores) if depth_scores else 1
 
     summary = (
         f"{name} completed a {state.question_count}-question TRACEBACK interview for a {role} profile. "

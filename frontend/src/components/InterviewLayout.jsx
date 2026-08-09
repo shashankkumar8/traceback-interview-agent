@@ -159,7 +159,7 @@ export default function InterviewLayout({
               <div className="il-error-msg">{error}</div>
               <div className="il-error-hint">Your conversation is preserved. You can retry.</div>
             </div>
-            <button className="il-retry-btn" onClick={onRetry}>Retry</button>
+            <button className="il-retry-btn" type="button" onClick={onRetry} aria-label="Retry" >Retry</button>
           </div>
         )}
 
@@ -221,9 +221,11 @@ export default function InterviewLayout({
                 {loading ? loadingStep || 'Processing...' : 'Press Ctrl+Enter or click Submit'}
               </span>
               <button
+                type="button"
                 className="btn-submit il-submit-btn"
                 onClick={onSubmit}
                 disabled={loading || !answer.trim()}
+                aria-label="Submit answer"
               >
                 {loading ? <span className="il-btn-spinner" /> : 'SUBMIT →'}
               </button>

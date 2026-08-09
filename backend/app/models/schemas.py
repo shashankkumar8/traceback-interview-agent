@@ -141,6 +141,8 @@ class InterviewState(BaseModel):
     strong_areas: list[str] = Field(default_factory=list)
     coverage: dict[str, bool] = Field(default_factory=dict)
     topic_queue: list[str] = Field(default_factory=list)
+    asked_topics: list[str] = Field(default_factory=list)
+    topic_history: list[str] = Field(default_factory=list)
     profile_summary: str = ""
     question_count: int = 0
     max_questions: int = 10

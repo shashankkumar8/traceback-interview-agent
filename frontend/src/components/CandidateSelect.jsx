@@ -64,8 +64,10 @@ export default function CandidateSelect({ candidates, selectedId, onSelect, onNe
               return (
                 <button
                   key={c.member?.id}
+                  type="button"
                   className={`cs-row ${isSelected ? 'cs-row-active' : ''}`}
                   onClick={() => onSelect(c.member?.id)}
+                  aria-pressed={isSelected}
                 >
                   <div
                     className="cs-avatar"
@@ -149,7 +151,7 @@ export default function CandidateSelect({ candidates, selectedId, onSelect, onNe
               </div>
             </div>
 
-            <button className="btn-start cs-btn-start" onClick={onNext}>
+            <button className="btn-start cs-btn-start" type="button" onClick={onNext}>
               GENERATE INTERVIEW BRIEF →
             </button>
           </div>

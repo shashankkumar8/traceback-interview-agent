@@ -7,6 +7,12 @@ def test_surface_answer():
     assert classify_depth("I used RAG.") == AnswerDepth.SURFACE
 
 
+@pytest.mark.asyncio
+async def test_extract_technologies():
+    ev = await extract_evidence("We used Pinecone for vector search and FastAPI for the API.")
+    assert "pinecone" in [t.lower() for t in ev.technologies] or any("vector" in t for t in ev.technologies)
+
+
 def test_strong_answer():
     text = (
         "We built a RAG pipeline with ChromaDB, chunk size 512, top-k 5, "
@@ -15,9 +21,4 @@ def test_strong_answer():
     )
     depth = classify_depth(text)
     assert depth in (AnswerDepth.STRONG, AnswerDepth.EXPERT, AnswerDepth.WORKING)
-
-
-async def test_extract_technologies():
-    ev = await extract_evidence("We used Pinecone for vector search and FastAPI for the API.")
-    assert "pinecone" in [t.lower() for t in ev.technologies] or any("vector" in t for t in ev.technologies)
 

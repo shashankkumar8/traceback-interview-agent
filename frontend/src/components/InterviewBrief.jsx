@@ -153,10 +153,10 @@ export default function InterviewBrief({ candidate, onStart, onBack, loading }) 
         </div>
 
         <div className="brief-actions">
-          <button className="btn-secondary brief-back-btn" onClick={onBack} disabled={loading}>
+          <button className="btn-secondary brief-back-btn" type="button" onClick={onBack} disabled={loading}>
             ← BACK
           </button>
-          <button className="btn-start brief-start-btn" onClick={onStart} disabled={loading}>
+          <button className="btn-start brief-start-btn" type="button" onClick={onStart} disabled={loading}>
             {loading ? (
               <span className="btn-loading">
                 <span className="spin-dot" />
